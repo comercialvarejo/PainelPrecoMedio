@@ -5,7 +5,7 @@
    >>> Ao publicar uma nova versão, altere SW_VERSION abaixo. <<<
 ------------------------------------------------------------------- */
 
-const SW_VERSION = 'v2';
+const SW_VERSION = 'v3';
 const CACHE = `painel-preco-medio-${SW_VERSION}`;
 
 /* Arquivos que compõem o aplicativo (baixados na instalação). */
@@ -13,8 +13,8 @@ const PRECACHE = [
   './',
   './index.html',
   './painel_preco_medio_apucarana.html',
-  './assets/app.js',
-  './data/alldb.json',
+  './app.js',
+  './alldb.json',
   './manifest.json',
   './favicon.svg',
   './icon-192.png',
@@ -99,7 +99,7 @@ self.addEventListener('fetch', event => {
 
   if (sameOrigin) {
     // Base de dados: sempre tenta a versão mais recente
-    if (url.pathname.endsWith('/data/alldb.json')) {
+    if (url.pathname.endsWith('/alldb.json')) {
       event.respondWith(networkFirst(req));
       return;
     }
