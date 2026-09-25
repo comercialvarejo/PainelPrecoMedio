@@ -123,6 +123,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
   document.getElementById('view-cli').style.display = t==='cli'?'':'none';
   document.getElementById('view-comp').style.display = t==='comp'?'':'none';
   document.getElementById('view-vvv').style.display = t==='vvv'?'':'none';
+  document.getElementById('view-resfr').style.display = t==='resfr'?'':'none';
   const activeSec = document.getElementById('view-'+t);
   if(activeSec){ activeSec.classList.remove('view-anim'); void activeSec.offsetWidth; activeSec.classList.add('view-anim'); }
   if(t==='intel') renderIntel();
@@ -132,6 +133,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
   if(t==='vvv') { renderVvv(); }
   if(t==='cli') { rebuildSelCli(); renderABC(); }
   if(t==='comp') { renderComp(); }
+  if(t==='resfr') { renderResfr(); }
   saveLastFilter();
 });
 
@@ -1871,3 +1873,293 @@ function applyThemeIcon(theme){
     applyThemeIcon(next);
   });
 })();
+
+/* ==================================================================
+   ABA RESFRIADOS — preço médio por item
+   Base própria (agregada por produto), independente do ALLDB, que é
+   por vendedor/cliente/OP. Períodos próprios: 4 semanas de setembro.
+   Fonte: Relatório de Vendas Apucarana, extraído em 25/09/2026.
+================================================================== */
+const RESFR = {"periodos":["p1","p2","p3","p4"],"dados":{"p1":{"periodo":"01 a 04/09/2026","nvendas":263,"nclientes":118,"fat":207453.13,"qtd":19188.6,"pmed":10.8113,"nprod":14,"indice":98.35,"vazamento":7547.34,"captura":4060.21,"itens":[{"produto":"RESFR. (FILE DE PEITO INDIVIDUAL) CX PP 20 KG (CANCAO ALIMENTOS)","vendas":72,"qtd":6400.0,"fat":84366.8,"pmed":13.1823,"min":10.0,"max":13.99,"lista":12.8,"multilista":false,"desvio":0.029867,"impacto":2446.72,"ampl":0.302679},{"produto":"RESFR. (COXA E SOBRECOXA INDIVIDUAL) CX PP 18KG (CANCAO)","vendas":49,"qtd":4698.0,"fat":31794.66,"pmed":6.7677,"min":6.4,"max":7.0,"lista":7.0,"multilista":false,"desvio":-0.033186,"impacto":-1091.35,"ampl":0.088656},{"produto":"RESFR. COXINHA DA ASA PV CX 20 KG","vendas":21,"qtd":2660.0,"fat":20086.0,"pmed":7.5511,"min":6.0,"max":9.3,"lista":9.0,"multilista":false,"desvio":-0.160989,"impacto":-3854.07,"ampl":0.437022},{"produto":"RESFR. C/ OSSO MEIO DAS ASAS BDJ PV CX 10,2 KG","vendas":22,"qtd":652.8,"fat":15131.7,"pmed":23.1797,"min":21.0,"max":23.8,"lista":24.5,"multilista":false,"desvio":-0.05389,"impacto":-861.89,"ampl":0.120795},{"produto":"RESFR. S/ OSSO FILE DE PEITO BDJ PV CX 11,2 KG","vendas":11,"qtd":996.8,"fat":14762.05,"pmed":14.8094,"min":12.0,"max":15.2,"lista":14.0,"multilista":false,"desvio":0.057814,"impacto":806.81,"ampl":0.216079},{"produto":"RESFR. FRANGO C/ MIÚDOS (2 FIGADO 2 PESCOCO) CX PP 20 KG (CANCAO)","vendas":31,"qtd":1900.0,"fat":14372.0,"pmed":7.5642,"min":6.8,"max":7.8,"lista":8.0,"multilista":false,"desvio":-0.054475,"impacto":-828.02,"ampl":0.132202},{"produto":"RESFR. MIÚDOS CORACAO PCT 20 X 1 KG CX 20 KG","vendas":7,"qtd":380.0,"fat":10444.0,"pmed":27.4842,"min":10.7,"max":31.5,"lista":29.0,"multilista":true,"desvio":-0.052269,"impacto":-576.0,"ampl":0.756798},{"produto":"RESFR. S/ OSSO FILEZINHO SASSAMI BDJ PV CX 11,4 KG","vendas":9,"qtd":330.6,"fat":4834.51,"pmed":14.6234,"min":11.0,"max":15.2,"lista":14.0,"multilista":false,"desvio":0.044529,"impacto":206.1,"ampl":0.287211},{"produto":"RESFR. PEITO C/ OSSO PV CX 18 KG","vendas":14,"qtd":468.0,"fat":4447.8,"pmed":9.5038,"min":9.2,"max":9.7,"lista":9.1,"multilista":false,"desvio":0.044374,"impacto":188.98,"ampl":0.052611},{"produto":"RESFR. C/ OSSO COXINHA DA ASA BDJ PV CX 10,5 KG","vendas":10,"qtd":210.0,"fat":2197.65,"pmed":10.465,"min":6.0,"max":11.3,"lista":10.3,"multilista":true,"desvio":0.016019,"impacto":34.65,"ampl":0.50645},{"produto":"RESFR. C/ OSSO SOBRECOXA BDJ PV CX 13 KG","vendas":12,"qtd":208.0,"fat":2111.2,"pmed":10.15,"min":7.8,"max":10.6,"lista":8.8,"multilista":false,"desvio":0.153409,"impacto":280.8,"ampl":0.275862},{"produto":"RESFR. ASA PV CX 20 KG","vendas":3,"qtd":120.0,"fat":1350.0,"pmed":11.25,"min":10.0,"max":11.5,"lista":11.0,"multilista":false,"desvio":0.022727,"impacto":30.0,"ampl":0.133333},{"produto":"RESFR. S/ OSSO S/ PELE PEITO S/ SASSAMI PCT PV CX 20 KG","vendas":1,"qtd":120.0,"fat":1200.0,"pmed":10.0,"min":10.0,"max":10.0,"lista":12.8,"multilista":false,"desvio":-0.21875,"impacto":-336.0,"ampl":0.0},{"produto":"RESFR. C/ OSSO COXA BDJ PV CX 11,1 KG","vendas":1,"qtd":44.4,"fat":354.76,"pmed":7.99,"min":7.99,"max":7.99,"lista":6.5,"multilista":false,"desvio":0.229231,"impacto":66.16,"ampl":0.0}]},"p2":{"periodo":"05 a 11/09/2026","nvendas":227,"nclientes":101,"fat":220851.47,"qtd":20448.3,"pmed":10.8005,"nprod":15,"indice":101.45,"vazamento":2434.95,"captura":5582.66,"itens":[{"produto":"RESFR. (FILE DE PEITO INDIVIDUAL) CX PP 20 KG (CANCAO ALIMENTOS)","vendas":71,"qtd":6220.0,"fat":83112.8,"pmed":13.3622,"min":12.0,"max":13.99,"lista":12.8,"multilista":false,"desvio":0.043922,"impacto":3496.88,"ampl":0.148928},{"produto":"RESFR. (COXA E SOBRECOXA INDIVIDUAL) CX PP 18KG (CANCAO)","vendas":50,"qtd":6444.0,"fat":45197.46,"pmed":7.0139,"min":6.4,"max":7.5,"lista":7.0,"multilista":false,"desvio":0.001986,"impacto":89.57,"ampl":0.156831},{"produto":"RESFR. FRANGO C/ MIÚDOS (2 FIGADO 2 PESCOCO) CX PP 20 KG (CANCAO)","vendas":29,"qtd":2660.0,"fat":20154.0,"pmed":7.5767,"min":7.0,"max":8.5,"lista":8.0,"multilista":false,"desvio":-0.052913,"impacto":-1125.98,"ampl":0.197975},{"produto":"RESFR. MIÚDOS CORACAO PCT 20 X 1 KG CX 20 KG","vendas":5,"qtd":640.0,"fat":18499.8,"pmed":28.9059,"min":28.0,"max":32.5,"lista":29.5,"multilista":false,"desvio":-0.020139,"impacto":-380.22,"ampl":0.155678},{"produto":"RESFR. S/ OSSO FILE DE PEITO BDJ PV CX 11,2 KG","vendas":15,"qtd":1019.2,"fat":15315.78,"pmed":15.0273,"min":14.5,"max":15.2,"lista":14.0,"multilista":false,"desvio":0.073379,"impacto":1047.02,"ampl":0.046582},{"produto":"RESFR. MIÚDOS MOELA PCT 20 X 1 KG CX 20 KG","vendas":4,"qtd":1120.0,"fat":9740.0,"pmed":8.6964,"min":8.5,"max":9.5,"lista":8.5,"multilista":false,"desvio":0.023106,"impacto":219.97,"ampl":0.11499},{"produto":"RESFR. COXINHA DA ASA PV CX 20 KG","vendas":15,"qtd":880.0,"fat":7796.0,"pmed":8.8591,"min":6.0,"max":9.4,"lista":9.0,"multilista":false,"desvio":-0.015656,"impacto":-123.99,"ampl":0.383786},{"produto":"RESFR. C/ OSSO MEIO DAS ASAS BDJ PV CX 10,2 KG","vendas":9,"qtd":326.4,"fat":7602.06,"pmed":23.2906,"min":21.0,"max":24.5,"lista":24.5,"multilista":false,"desvio":-0.049363,"impacto":-394.75,"ampl":0.150275},{"produto":"RESFR. S/ OSSO S/ PELE PEITO S/ SASSAMI PCT PV CX 20 KG","vendas":5,"qtd":360.0,"fat":4198.0,"pmed":11.6611,"min":7.0,"max":13.5,"lista":12.8,"multilista":false,"desvio":-0.088977,"impacto":-410.0,"ampl":0.557409},{"produto":"RESFR. S/ OSSO FILEZINHO SASSAMI BDJ PV CX 11,4 KG","vendas":4,"qtd":228.0,"fat":3448.16,"pmed":15.1235,"min":14.9,"max":15.2,"lista":14.0,"multilista":false,"desvio":0.08025,"impacto":256.16,"ampl":0.019837},{"produto":"RESFR. ASA PV CX 20 KG","vendas":4,"qtd":220.0,"fat":2480.0,"pmed":11.2727,"min":11.0,"max":11.5,"lista":11.0,"multilista":false,"desvio":0.024791,"impacto":59.99,"ampl":0.044355},{"produto":"RESFR. C/ OSSO SOBRECOXA BDJ PV CX 13 KG","vendas":7,"qtd":130.0,"fat":1355.9,"pmed":10.43,"min":9.5,"max":10.6,"lista":8.8,"multilista":false,"desvio":0.185227,"impacto":211.9,"ampl":0.105465},{"produto":"RESFR. C/ OSSO COXINHA DA ASA BDJ PV CX 10,5 KG","vendas":6,"qtd":105.0,"fat":1176.0,"pmed":11.2,"min":10.8,"max":11.3,"lista":10.3,"multilista":false,"desvio":0.087379,"impacto":94.5,"ampl":0.044643},{"produto":"RESFR. C/ OSSO COXA BDJ PV CX 11,1 KG","vendas":2,"qtd":77.69999999999999,"fat":604.51,"pmed":7.78,"min":7.5,"max":7.99,"lista":6.5,"multilista":false,"desvio":0.196923,"impacto":99.46,"ampl":0.062982},{"produto":"RESFR. PEITO C/ OSSO PV CX 18 KG","vendas":1,"qtd":18.0,"fat":171.0,"pmed":9.5,"min":9.5,"max":9.5,"lista":9.1,"multilista":false,"desvio":0.043956,"impacto":7.2,"ampl":0.0}]},"p3":{"periodo":"12 a 18/09/2026","nvendas":383,"nclientes":161,"fat":284043.85,"qtd":25763.9,"pmed":11.0249,"nprod":15,"indice":98.94,"vazamento":9940.11,"captura":6887.03,"itens":[{"produto":"RESFR. (FILE DE PEITO INDIVIDUAL) CX PP 20 KG (CANCAO ALIMENTOS)","vendas":107,"qtd":12240.0,"fat":146793.0,"pmed":11.9929,"min":10.0,"max":14.1,"lista":12.8,"multilista":false,"desvio":-0.063055,"impacto":-9878.9,"ampl":0.341869},{"produto":"RESFR. (COXA E SOBRECOXA INDIVIDUAL) CX PP 18KG (CANCAO)","vendas":67,"qtd":4860.0,"fat":36073.08,"pmed":7.4224,"min":6.4,"max":7.8,"lista":7.0,"multilista":false,"desvio":0.060343,"impacto":2052.86,"ampl":0.188618},{"produto":"RESFR. S/ OSSO FILE DE PEITO BDJ PV CX 11,2 KG","vendas":32,"qtd":1668.8,"fat":24851.34,"pmed":14.8917,"min":14.5,"max":15.5,"lista":14.0,"multilista":false,"desvio":0.063693,"impacto":1488.07,"ampl":0.067152},{"produto":"RESFR. FRANGO C/ MIÚDOS (2 FIGADO 2 PESCOCO) CX PP 20 KG (CANCAO)","vendas":36,"qtd":2160.0,"fat":17891.0,"pmed":8.2829,"min":7.2,"max":8.5,"lista":8.0,"multilista":false,"desvio":0.035362,"impacto":611.06,"ampl":0.15695},{"produto":"RESFR. COXINHA DA ASA PV CX 20 KG","vendas":34,"qtd":1640.0,"fat":15500.8,"pmed":9.4517,"min":9.0,"max":9.7,"lista":9.0,"multilista":false,"desvio":0.050189,"impacto":740.79,"ampl":0.074061},{"produto":"RESFR. MIÚDOS CORACAO PCT 20 X 1 KG CX 20 KG","vendas":10,"qtd":300.0,"fat":9426.0,"pmed":31.42,"min":29.9,"max":32.5,"lista":29.5,"multilista":false,"desvio":0.065085,"impacto":576.0,"ampl":0.08275},{"produto":"RESFR. MIÚDOS MOELA PCT 20 X 1 KG CX 20 KG","vendas":3,"qtd":840.0,"fat":7240.0,"pmed":8.619,"min":8.5,"max":9.0,"lista":8.5,"multilista":false,"desvio":0.014,"impacto":99.96,"ampl":0.058011},{"produto":"RESFR. C/ OSSO MEIO DAS ASAS BDJ PV CX 10,2 KG","vendas":18,"qtd":234.6,"fat":5686.5,"pmed":24.2391,"min":24.0,"max":24.5,"lista":24.5,"multilista":false,"desvio":-0.010649,"impacto":-61.21,"ampl":0.020628},{"produto":"RESFR. S/ OSSO FILEZINHO SASSAMI BDJ PV CX 11,4 KG","vendas":12,"qtd":353.4,"fat":5291.88,"pmed":14.9742,"min":14.49,"max":15.5,"lista":14.0,"multilista":false,"desvio":0.069586,"impacto":344.28,"ampl":0.067449},{"produto":"RESFR. ASA PV CX 20 KG","vendas":17,"qtd":460.0,"fat":5243.8,"pmed":11.3996,"min":11.0,"max":11.5,"lista":11.0,"multilista":false,"desvio":0.036327,"impacto":183.82,"ampl":0.043861},{"produto":"RESFR. PEITO C/ OSSO PV CX 18 KG","vendas":16,"qtd":486.0,"fat":4620.6,"pmed":9.5074,"min":9.5,"max":9.7,"lista":9.1,"multilista":false,"desvio":0.044769,"impacto":198.0,"ampl":0.021036},{"produto":"RESFR. C/ OSSO SOBRECOXA BDJ PV CX 13 KG","vendas":11,"qtd":221.0,"fat":2354.3,"pmed":10.6529,"min":9.5,"max":10.9,"lista":8.8,"multilista":false,"desvio":0.210557,"impacto":409.49,"ampl":0.13142},{"produto":"RESFR. C/ OSSO COXINHA DA ASA BDJ PV CX 10,5 KG","vendas":17,"qtd":189.0,"fat":2083.2,"pmed":11.0222,"min":10.8,"max":11.3,"lista":10.3,"multilista":true,"desvio":0.070117,"impacto":136.5,"ampl":0.045363},{"produto":"RESFR. (SOBRECOXAS) PCT CX PP 20 KG (CANCAO)","vendas":2,"qtd":100.0,"fat":894.0,"pmed":8.94,"min":8.9,"max":9.0,"lista":8.7,"multilista":false,"desvio":0.027586,"impacto":24.0,"ampl":0.011186},{"produto":"RESFR. C/ OSSO COXA BDJ PV CX 11,1 KG","vendas":1,"qtd":11.1,"fat":94.35,"pmed":8.5,"min":8.5,"max":8.5,"lista":6.5,"multilista":false,"desvio":0.307692,"impacto":22.2,"ampl":0.0}]},"p4":{"periodo":"19 a 24/09/2026","nvendas":514,"nclientes":174,"fat":316474.04,"qtd":29459.8,"pmed":10.7426,"nprod":21,"indice":107.33,"vazamento":1474.98,"captura":23089.3,"itens":[{"produto":"RESFR. (FILE DE PEITO INDIVIDUAL) CX PP 20 KG (CANCAO ALIMENTOS)","vendas":107,"qtd":6360.0,"fat":90654.4,"pmed":14.2538,"min":13.5,"max":14.9,"lista":12.8,"multilista":false,"desvio":0.113578,"impacto":9246.17,"ampl":0.098219},{"produto":"RESFR. (COXA E SOBRECOXA INDIVIDUAL) CX PP 18KG (CANCAO)","vendas":95,"qtd":10692.0,"fat":79363.98,"pmed":7.4227,"min":7.0,"max":8.3,"lista":7.0,"multilista":false,"desvio":0.060386,"impacto":4519.51,"ampl":0.175138},{"produto":"RESFR. S/ OSSO FILE DE PEITO BDJ PV CX 11,2 KG","vendas":40,"qtd":2161.6,"fat":33887.73,"pmed":15.6772,"min":14.9,"max":16.8,"lista":14.0,"multilista":false,"desvio":0.1198,"impacto":3625.44,"ampl":0.121195},{"produto":"RESFR. FRANGO C/ MIÚDOS (2 FIGADO 2 PESCOCO) CX PP 20 KG (CANCAO)","vendas":45,"qtd":2560.0,"fat":21316.2,"pmed":8.3266,"min":7.9,"max":8.8,"lista":8.0,"multilista":false,"desvio":0.040825,"impacto":836.1,"ampl":0.108087},{"produto":"RESFR. COXINHA DA ASA PV CX 20 KG","vendas":35,"qtd":1880.0,"fat":17920.0,"pmed":9.5319,"min":9.0,"max":10.1,"lista":9.0,"multilista":false,"desvio":0.0591,"impacto":999.97,"ampl":0.115402},{"produto":"RESFR. MIÚDOS MOELA PCT 20 X 1 KG CX 20 KG","vendas":18,"qtd":2100.0,"fat":17447.2,"pmed":8.3082,"min":8.0,"max":9.5,"lista":8.5,"multilista":false,"desvio":-0.022565,"impacto":-402.78,"ampl":0.180545},{"produto":"RESFR. S/ OSSO FILEZINHO SASSAMI BDJ PV CX 11,4 KG","vendas":28,"qtd":775.2,"fat":12017.88,"pmed":15.5029,"min":14.9,"max":15.8,"lista":14.0,"multilista":false,"desvio":0.10735,"impacto":1165.05,"ampl":0.058054},{"produto":"RESFR. MIÚDOS CORACAO PCT 20 X 1 KG CX 20 KG","vendas":9,"qtd":340.0,"fat":10792.0,"pmed":31.7412,"min":31.0,"max":33.8,"lista":29.5,"multilista":false,"desvio":0.075973,"impacto":762.01,"ampl":0.088213},{"produto":"RESFR. C/ OSSO MEIO DAS ASAS BDJ PV CX 10,2 KG","vendas":22,"qtd":305.9999999999999,"fat":7731.6,"pmed":25.2667,"min":24.5,"max":25.5,"lista":24.5,"multilista":false,"desvio":0.031294,"impacto":234.61,"ampl":0.039578},{"produto":"RESFR. ASA PV CX 20 KG","vendas":12,"qtd":460.0,"fat":5224.0,"pmed":11.3565,"min":10.9,"max":12.1,"lista":11.0,"multilista":false,"desvio":0.032409,"impacto":163.99,"ampl":0.105666},{"produto":"RESFR. C/ OSSO COXINHA DA ASA BDJ PV CX 10,5 KG","vendas":26,"qtd":462.0,"fat":5110.35,"pmed":11.0614,"min":10.8,"max":12.3,"lista":10.3,"multilista":false,"desvio":0.073922,"impacto":351.77,"ampl":0.135607},{"produto":"RESFR. PEITO C/ OSSO PV CX 18 KG","vendas":12,"qtd":360.0,"fat":3643.2,"pmed":10.12,"min":9.5,"max":10.5,"lista":9.1,"multilista":false,"desvio":0.112088,"impacto":367.2,"ampl":0.098814},{"produto":"RESFR. C/ OSSO SOBRECOXA BDJ PV CX 13 KG","vendas":17,"qtd":325.0,"fat":3581.5,"pmed":11.02,"min":9.5,"max":11.2,"lista":8.8,"multilista":false,"desvio":0.252273,"impacto":721.5,"ampl":0.154265},{"produto":"RESFR. MIÚDOS CORACAO BDJ 20 X 600 G CX 12 KG","vendas":8,"qtd":96.0,"fat":3072.0,"pmed":32.0,"min":32.0,"max":32.0,"lista":36.0,"multilista":false,"desvio":-0.111111,"impacto":-384.0,"ampl":0.0},{"produto":"RESFR. MIÚDOS MOELA BDJ 20 X 600 G CX 12 KG","vendas":9,"qtd":108.0,"fat":1026.0,"pmed":9.5,"min":9.5,"max":9.5,"lista":11.0,"multilista":false,"desvio":-0.136364,"impacto":-162.0,"ampl":0.0},{"produto":"RESFR. C/ OSSO PES BDJ PV CX 7,5 KG","vendas":6,"qtd":90.0,"fat":900.0,"pmed":10.0,"min":10.0,"max":10.0,"lista":12.7,"multilista":false,"desvio":-0.212598,"impacto":-243.0,"ampl":0.0},{"produto":"RESFR. (SOBRECOXAS) PCT CX PP 20 KG (CANCAO)","vendas":1,"qtd":80.0,"fat":720.0,"pmed":9.0,"min":9.0,"max":9.0,"lista":8.7,"multilista":false,"desvio":0.034483,"impacto":24.0,"ampl":0.0},{"produto":"RESFR. MIÚDOS FIGADO BDJ 20 X 600 G CX 12 KG","vendas":9,"qtd":108.0,"fat":702.0,"pmed":6.5,"min":6.5,"max":6.5,"lista":7.0,"multilista":false,"desvio":-0.071429,"impacto":-54.0,"ampl":0.0},{"produto":"RESFR. S/ OSSO S/ PELE PEITO S/ SASSAMI PCT PV CX 20 KG","vendas":2,"qtd":40.0,"fat":584.0,"pmed":14.6,"min":14.6,"max":14.6,"lista":12.8,"multilista":false,"desvio":0.140625,"impacto":72.0,"ampl":0.0},{"produto":"RESFR. C/ OSSO S/ PELE PESCOCO BDJ 15 X 600 G CX 12 KG","vendas":7,"qtd":84.0,"fat":420.0,"pmed":5.0,"min":5.0,"max":5.0,"lista":6.7,"multilista":false,"desvio":-0.253731,"impacto":-142.8,"ampl":0.0},{"produto":"RESFR. C/ OSSO SAMBIQUIRA BDJ 20 X 600 G CX 12 KG","vendas":6,"qtd":72.0,"fat":360.0,"pmed":5.0,"min":5.0,"max":5.0,"lista":6.2,"multilista":false,"desvio":-0.193548,"impacto":-86.4,"ampl":0.0}]}}};
+const RF_ORDER = RESFR.periodos;
+let rfAtual = RF_ORDER[RF_ORDER.length-1];
+let rfFiltro = '', rfOrd = 'fat';
+
+const RFd = k => RESFR.dados[k];
+const rfBrl  = n => n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const rfBrl2 = n => 'R$ ' + n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const rfNum  = (n,d=0) => n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const rfK    = n => Math.abs(n)>=1e6 ? 'R$ '+(n/1e6).toLocaleString('pt-BR',{maximumFractionDigits:2})+' mi'
+                  : Math.abs(n)>=1e3 ? 'R$ '+(n/1e3).toLocaleString('pt-BR',{maximumFractionDigits:0})+' mil'
+                  : rfBrl(n);
+const rfPct  = (v,d=1) => (v>=0?'+':'−') + Math.abs(v*100).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}) + '%';
+const rfSeta = v => v>0 ? '↑' : v<0 ? '↓' : '→';
+const rfCurto = p => p.replace(/^RESFR\.\s*/,'').replace(/\s*\(CANCAO[^)]*\)/,'').replace(/\s*(CX|PCT|BDJ)\s.*$/,'').trim();
+
+/* seta + sinal junto do valor: a cor nunca carrega sozinha o significado */
+function rfChip(v,d){
+  if(v===null||v===undefined||!isFinite(v)) return '<span class="rf-chip flat">sem base</span>';
+  const cls = Math.abs(v)<0.0005 ? 'flat' : (v>0 ? 'up' : 'down');
+  return `<span class="rf-chip ${cls}">${rfSeta(v)} ${rfPct(v, d===undefined?1:d)}</span>`;
+}
+
+function rfSerie(produto){
+  return RF_ORDER.map(k => { const it = RFd(k).itens.find(i=>i.produto===produto); return it ? it.pmed : null; });
+}
+function rfProdutos(){
+  const m = new Map();
+  RF_ORDER.forEach(k => RFd(k).itens.forEach(i => {
+    const a = m.get(i.produto) || {produto:i.produto, fat:0, qtd:0};
+    a.fat += i.fat; a.qtd += i.qtd; m.set(i.produto, a);
+  }));
+  return [...m.values()].sort((a,b)=>b.fat-a.fat);
+}
+function rfDelta(s){
+  const v = s.map((x,i)=>[x,i]).filter(([x])=>x!==null);
+  return v.length<2 ? null : v[v.length-1][0]/v[0][0]-1;
+}
+
+/* ---------- gráfico de linha: preço médio geral ---------- */
+function rfChartLinha(){
+  const W=720,H=200,L=50,R=18,T=18,B=36,iw=W-L-R,ih=H-T-B;
+  const vals = RF_ORDER.map(k=>RFd(k).pmed);
+  const lo=Math.min(...vals)*0.985, hi=Math.max(...vals)*1.015;
+  const x=i=>L+(RF_ORDER.length===1?iw/2:i/(RF_ORDER.length-1)*iw);
+  const y=v=>T+ih-(v-lo)/((hi-lo)||1)*ih;
+  const grid=[0,.25,.5,.75,1].map(f=>{const yy=T+ih*f,v=hi-(hi-lo)*f;
+    return `<line class="g" x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}"/>
+            <text class="ax" x="${L-8}" y="${yy+3}" text-anchor="end">${rfNum(v,2)}</text>`;}).join('');
+  const path=vals.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
+  const area=`${path} L ${x(vals.length-1).toFixed(1)} ${T+ih} L ${x(0).toFixed(1)} ${T+ih} Z`;
+  const pts=vals.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="5" fill="var(--primary)" stroke="var(--card)" stroke-width="2"/>
+    <text class="vl" x="${i===0?x(i)+4:i===vals.length-1?x(i)-4:x(i)}" y="${y(v)-13}"
+      text-anchor="${i===0?'start':i===vals.length-1?'end':'middle'}">${rfNum(v,2)}</text>`).join('');
+  const labs=RF_ORDER.map((k,i)=>`<text class="ax" x="${x(i)}" y="${H-11}" text-anchor="middle">${esc(RFd(k).periodo.replace('/2026',''))}</text>`).join('');
+  return `<svg class="rf-chart" viewBox="0 0 ${W} ${H}" role="img"
+    aria-label="Preço médio geral dos resfriados por período, em reais por quilo">
+    <defs><linearGradient id="rfArea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--primary)" stop-opacity=".18"/>
+      <stop offset="1" stop-color="var(--primary)" stop-opacity="0"/></linearGradient></defs>
+    ${grid}<path d="${area}" fill="url(#rfArea)"/>
+    <path d="${path}" fill="none" stroke="var(--primary)" stroke-width="2.5"
+      stroke-linecap="round" stroke-linejoin="round"/>${pts}${labs}</svg>`;
+}
+
+/* ---------- gráfico de barras: faturamento ---------- */
+function rfChartBarras(){
+  const W=720,H=200,L=50,R=18,T=18,B=36,iw=W-L-R,ih=H-T-B;
+  const vals=RF_ORDER.map(k=>RFd(k).fat), hi=Math.max(...vals)*1.14;
+  const bw=iw/RF_ORDER.length*0.5, cx=i=>L+iw/RF_ORDER.length*(i+0.5);
+  const grid=[0,.25,.5,.75,1].map(f=>{const yy=T+ih*f,v=hi-hi*f;
+    return `<line class="g" x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}"/>
+            <text class="ax" x="${L-8}" y="${yy+3}" text-anchor="end">${rfNum(v/1000,0)}k</text>`;}).join('');
+  const bars=vals.map((v,i)=>{const h=v/hi*ih,yy=T+ih-h;
+    return `<rect x="${cx(i)-bw/2}" y="${yy}" width="${bw}" height="${h}" rx="4" fill="var(--primary)"/>
+            <text class="vl" x="${cx(i)}" y="${yy-8}" text-anchor="middle">${rfK(v)}</text>`;}).join('');
+  const labs=RF_ORDER.map((k,i)=>`<text class="ax" x="${cx(i)}" y="${H-11}" text-anchor="middle">${esc(RFd(k).periodo.replace('/2026',''))}</text>`).join('');
+  return `<svg class="rf-chart" viewBox="0 0 ${W} ${H}" role="img"
+    aria-label="Faturamento de resfriados por período, em reais">${grid}${bars}${labs}</svg>`;
+}
+
+/* ---------- minigráfico de trajetória ---------- */
+function rfSpark(s,w=100,h=24){
+  const v=s.filter(x=>x!==null);
+  if(v.length<2) return `<svg width="${w}" height="${h}" aria-hidden="true"></svg>`;
+  const lo=Math.min(...v),hi=Math.max(...v),rg=(hi-lo)||1;
+  const x=i=>3+i/(s.length-1)*(w-6), y=val=>h-4-(val-lo)/rg*(h-8);
+  let d='',ini=false;
+  s.forEach((val,i)=>{ if(val===null) return; d+=(ini?'L':'M')+x(i).toFixed(1)+' '+y(val).toFixed(1)+' '; ini=true; });
+  const dots=s.map((val,i)=> val===null?'' :
+    `<circle cx="${x(i).toFixed(1)}" cy="${y(val).toFixed(1)}" r="${i===s.length-1?2.6:1.7}"
+      fill="var(--primary)" opacity="${i===s.length-1?1:.55}"/>`).join('');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+    <path d="${d.trim()}" fill="none" stroke="var(--primary)" stroke-width="1.8"
+      stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>${dots}</svg>`;
+}
+
+/* ---------- render da aba ---------- */
+function renderResfr(){
+  const host = document.getElementById('resfrContent');
+  if(!host) return;
+  const d = RFd(rfAtual);
+  const i0 = RF_ORDER.indexOf(rfAtual);
+  const ant = i0>0 ? RFd(RF_ORDER[i0-1]) : null;
+  const dl = (a,b) => (ant && b) ? (a/b-1) : null;
+
+  /* KPIs */
+  const kpis = [
+    {l:'Faturamento',u:'BRL',v:rfK(d.fat),b:'var(--primary)',
+     s:`${rfNum(d.nvendas)} vendas · ${rfNum(d.nclientes)} clientes`,d:dl(d.fat,ant&&ant.fat)},
+    {l:'Volume',u:'KG',v:rfNum(d.qtd,0),sm:'kg',b:'#8a8f98',
+     s:`${d.nprod} produtos com venda`,d:dl(d.qtd,ant&&ant.qtd)},
+    {l:'Preço médio',u:'R$/KG',v:rfBrl2(d.pmed),b:'var(--primary)',
+     s:'faturamento ÷ quantidade',d:dl(d.pmed,ant&&ant.pmed)},
+    {l:'Índice vs tabela',u:'%',v:rfNum(d.indice,1),sm:'%',
+     b:d.indice>=100?'var(--rf-pos)':'var(--rf-neg)',
+     s:`${d.indice>=100?'acima':'abaixo'} do preço de lista`,
+     d:ant?(d.indice/ant.indice-1):null},
+  ].map(c=>`<div class="rf-kpi" style="--b:${c.b}">
+      <div class="t"><span class="l">${c.l}</span><span class="u">${c.u}</span></div>
+      <div class="v">${c.v}${c.sm?`<small>${c.sm}</small>`:''}</div>
+      <div class="s">${rfChip(c.d)} <span>${c.s}</span></div></div>`).join('');
+
+  /* tabela do período */
+  const cmp={fat:(a,b)=>b.fat-a.fat,qtd:(a,b)=>b.qtd-a.qtd,pmed:(a,b)=>b.pmed-a.pmed,
+             desvio:(a,b)=>a.desvio-b.desvio,ampl:(a,b)=>b.ampl-a.ampl,
+             nome:(a,b)=>a.produto.localeCompare(b.produto,'pt-BR')};
+  const itens = d.itens.filter(i=>i.produto.toLowerCase().includes(rfFiltro.toLowerCase())).slice().sort(cmp[rfOrd]);
+  const tf=itens.reduce((s,i)=>s+i.fat,0), tq=itens.reduce((s,i)=>s+i.qtd,0), tv=itens.reduce((s,i)=>s+i.vendas,0);
+  const linhas = itens.length ? itens.map(i=>`<tr>
+      <td class="rf-prod">${esc(i.produto)}${i.multilista?'<small>mais de um preço de lista no período</small>':''}</td>
+      <td class="r">${rfNum(i.vendas)}</td><td class="r">${rfNum(i.qtd,0)}</td>
+      <td class="r">${rfBrl(i.fat)}</td>
+      <td class="r dim">${rfNum(i.min,2)}</td><td class="r strong">${rfNum(i.pmed,2)}</td>
+      <td class="r dim">${rfNum(i.max,2)}</td><td class="r dim">${rfNum(i.lista,2)}</td>
+      <td class="r">${rfChip(i.desvio)}</td></tr>`).join('')
+    : '<tr><td colspan="9" class="rf-empty">Nenhum produto encontrado.</td></tr>';
+
+  /* evolução por produto */
+  const evo = rfProdutos().map(p=>{
+    const s=rfSerie(p.produto);
+    const cels=s.map((v,i)=> v===null ? '<td class="r dim">—</td>'
+      : `<td class="r${i===RF_ORDER.length-1?' strong':''}">${rfNum(v,2)}</td>`).join('');
+    return `<tr><td class="rf-prod">${esc(p.produto)}</td>
+      <td style="padding:5px 11px">${rfSpark(s)}</td>${cels}
+      <td class="r">${rfChip(rfDelta(s))}</td>
+      <td class="r">${rfNum(p.qtd,0)}</td><td class="r">${rfBrl(p.fat)}</td></tr>`;
+  }).join('');
+  const totS=RF_ORDER.map(k=>RFd(k).pmed);
+  const totQ=RF_ORDER.reduce((s,k)=>s+RFd(k).qtd,0), totF=RF_ORDER.reduce((s,k)=>s+RFd(k).fat,0);
+
+  /* aderência à tabela */
+  const ader = d.itens.slice().sort((a,b)=>b.desvio-a.desvio);
+  const maxAbs = Math.max(...ader.map(i=>Math.abs(i.desvio)), 0.02);
+  const barras = ader.map(i=>{
+    const w=Math.abs(i.desvio)/maxAbs*48, pos=i.desvio>=0;
+    return `<div class="rf-dv">
+      <div class="n">${esc(rfCurto(i.produto))}<small>${rfNum(i.qtd,0)} kg · lista ${rfNum(i.lista,2)} · ${rfNum(i.vendas)} vendas</small></div>
+      <div class="rf-track"><div class="rf-fill" style="${pos?`left:50%;width:${w}%`:`right:50%;width:${w}%`};
+        background:${pos?'var(--rf-pos)':'var(--rf-neg)'}"></div></div>
+      <div class="v ${pos?'pos':'neg'}">${rfSeta(i.desvio)} ${rfPct(i.desvio)}</div></div>`;
+  }).join('');
+  const liq = d.captura - d.vazamento;
+
+  host.innerHTML = `
+    <div class="rf-bar"><span class="rf-lbl">Período</span>
+      ${RF_ORDER.map(k=>`<button class="rf-pbtn${k===rfAtual?' on':''}" data-rp="${k}">${esc(RFd(k).periodo.replace('/2026',''))}</button>`).join('')}
+    </div>
+
+    <div class="rf-kpis">${kpis}</div>
+
+    <div class="rf-2col">
+      <div class="rf-card"><div class="rf-head"><div><span class="over">Evolução</span>
+        <h3>Preço médio geral</h3><p>Faturamento ÷ quantidade de cada período.</p></div>
+        <span class="rf-badge">R$/kg</span></div><div class="rf-body">${rfChartLinha()}</div></div>
+      <div class="rf-card"><div class="rf-head"><div><span class="over">Volume financeiro</span>
+        <h3>Faturamento por período</h3><p>Resfriados, oportunidades fechadas e ganhas.</p></div>
+        <span class="rf-badge">R$</span></div><div class="rf-body">${rfChartBarras()}</div></div>
+    </div>
+
+    <div class="rf-2col">
+      <div class="rf-card"><div class="rf-head"><div><span class="over">${esc(d.periodo)}</span>
+        <h3>Vazamento vs captura</h3>
+        <p>Diferença entre o preço praticado e o de lista, multiplicada pelo volume.</p></div></div>
+        <div class="rf-body">
+          <div class="rf-dv"><div class="n">Abaixo da tabela</div><div class="v neg">↓ ${rfBrl(d.vazamento)}</div></div>
+          <div class="rf-dv"><div class="n">Acima da tabela</div><div class="v pos">↑ ${rfBrl(d.captura)}</div></div>
+          <div class="rf-dv" style="border-top:2px solid var(--line)">
+            <div class="n"><b>Resultado líquido</b></div>
+            <div class="v ${liq>=0?'pos':'neg'}">${rfSeta(liq)} ${rfBrl(Math.abs(liq))}</div></div>
+        </div></div>
+      <div class="rf-card"><div class="rf-head"><div><span class="over">Índice de preço</span>
+        <h3>${rfNum(d.indice,1)}% da tabela</h3>
+        <p>Faturamento realizado dividido pelo que sairia tudo ao preço de lista.</p></div></div>
+        <div class="rf-body">
+          <div style="height:10px;border-radius:99px;background:var(--track-bg,rgba(0,0,0,.08));position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0 auto 0 0;width:${Math.min(100,d.indice/1.2)}%;border-radius:99px;
+              background:${d.indice>=100?'var(--rf-pos)':'var(--rf-neg)'}"></div>
+            <div style="position:absolute;left:83.33%;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.5"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:7px;font-size:11px;color:var(--muted)">
+            <span>0%</span><span>100% = preço de lista</span><span>120%</span></div>
+          <p style="margin-top:13px;font-size:12.5px;color:var(--muted)">${d.indice>=100
+            ? `A operação está capturando <b class="pos">${rfNum(d.indice-100,1)}%</b> acima da tabela no período.`
+            : `A operação está <b class="neg">${rfNum(100-d.indice,1)}%</b> abaixo da tabela no período.`}</p>
+        </div></div>
+    </div>
+
+    <div class="rf-ctrl">
+      <input type="text" id="rfQ" placeholder="Filtrar produto…" value="${esc(rfFiltro)}" aria-label="Filtrar produto">
+      <select id="rfS" aria-label="Ordenar por">
+        <option value="fat">Maior faturamento</option><option value="qtd">Maior volume</option>
+        <option value="pmed">Maior preço médio</option><option value="desvio">Maior desvio abaixo da tabela</option>
+        <option value="ampl">Maior amplitude de preço</option><option value="nome">Nome do produto</option>
+      </select>
+    </div>
+
+    <div class="rf-card">
+      <div class="rf-head"><div><span class="over">${esc(d.periodo)}</span><h3>Preço por item</h3>
+        <p>Mínimo, médio e máximo praticados, e o desvio contra o preço de lista.</p></div>
+        <span class="rf-badge">${itens.length} de ${d.nprod} produtos</span></div>
+      <div class="rf-scroll"><table>
+        <thead><tr><th>Produto</th><th class="r">Vendas</th><th class="r">Qtd (kg)</th><th class="r">Faturamento</th>
+          <th class="r">Mín</th><th class="r">Médio</th><th class="r">Máx</th><th class="r">Lista</th>
+          <th class="r">vs Lista</th></tr></thead>
+        <tbody>${linhas}</tbody>
+        ${itens.length?`<tfoot><tr><td>TOTAL</td><td class="r">${rfNum(tv)}</td><td class="r">${rfNum(tq,0)}</td>
+          <td class="r">${rfBrl(tf)}</td><td class="r"></td><td class="r">${rfNum(tf/tq,2)}</td>
+          <td class="r"></td><td class="r"></td><td class="r"></td></tr></tfoot>`:''}
+      </table></div>
+      <div class="rf-note">Preço médio = faturamento ÷ quantidade (média ponderada). Mín e Máx são os preços
+        unitários extremos praticados no período.</div>
+    </div>
+
+    <div class="rf-card">
+      <div class="rf-head"><div><span class="over">Setembro 2026 · ${RF_ORDER.length} períodos</span>
+        <h3>Preço médio por produto, período a período</h3>
+        <p>A variação compara o primeiro e o último período com venda. Traço indica item sem venda no período.</p></div>
+        <span class="rf-badge">${rfProdutos().length} produtos</span></div>
+      <div class="rf-scroll"><table style="min-width:880px">
+        <thead><tr><th>Produto</th><th>Trajetória</th>
+          ${RF_ORDER.map(k=>`<th class="r">${esc(RFd(k).periodo.replace('/2026',''))}</th>`).join('')}
+          <th class="r">Variação</th><th class="r">Qtd total</th><th class="r">Fat. total</th></tr></thead>
+        <tbody>${evo}</tbody>
+        <tfoot><tr><td>TOTAL GERAL</td><td>${rfSpark(totS)}</td>
+          ${totS.map(v=>`<td class="r">${rfNum(v,2)}</td>`).join('')}
+          <td class="r">${rfChip(totS[totS.length-1]/totS[0]-1)}</td>
+          <td class="r">${rfNum(totQ,0)}</td><td class="r">${rfBrl(totF)}</td></tr></tfoot>
+      </table></div>
+    </div>
+
+    <div class="rf-card">
+      <div class="rf-head"><div><span class="over">Item a item</span><h3>Desvio contra o preço de lista</h3>
+        <p>Barras à direita da linha central indicam preço acima da tabela; à esquerda, abaixo.
+           O sinal e a seta acompanham cada valor.</p></div>
+        <span class="rf-badge">${ader.length} produtos</span></div>
+      <div class="rf-body">${barras}</div>
+      <div class="rf-note">Vazamento = (preço de lista − preço médio) × quantidade, somado apenas nos itens
+        vendidos abaixo da tabela. Captura usa a mesma conta no sentido oposto.
+        Fonte: Relatório de Vendas Apucarana, extraído em 25/09/2026.</div>
+    </div>`;
+
+  /* interações */
+  host.querySelectorAll('.rf-pbtn').forEach(b => b.onclick = () => {
+    rfAtual = b.dataset.rp;
+    try{ localStorage.setItem('painelResfrPeriodo', rfAtual); }catch(e){}
+    renderResfr();
+  });
+  const q = document.getElementById('rfQ');
+  if(q) q.addEventListener('input', e => {
+    rfFiltro = e.target.value; renderResfr();
+    const n = document.getElementById('rfQ');
+    if(n){ n.focus(); n.setSelectionRange(n.value.length, n.value.length); }
+  });
+  const s = document.getElementById('rfS');
+  if(s){ s.value = rfOrd; s.addEventListener('change', e => { rfOrd = e.target.value; renderResfr(); }); }
+}
+
+/* período salvo entre sessões */
+try{
+  const rp = localStorage.getItem('painelResfrPeriodo');
+  if(rp && RESFR.dados[rp]) rfAtual = rp;
+}catch(e){}

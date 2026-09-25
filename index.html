@@ -1014,6 +1014,112 @@ body.strategy-meeting header,body.strategy-meeting .global-bar,body.strategy-mee
 #swUpdate button{border:0;border-radius:8px;padding:7px 12px;cursor:pointer;
   background:rgba(255,255,255,.18);color:#fff;font:600 12px/1 'Inter',system-ui,sans-serif}
 </style>
+<style>
+/* ============ ABA RESFRIADOS ============
+   Tokens próprios para não interferir no resto do painel.
+   Par divergente validado para daltonismo (deutan ΔE 15,4 claro / 9,1 escuro);
+   o sinal e a seta acompanham todo valor, então a cor nunca é o único indicador. */
+#view-resfr{--rf-pos:#169b74;--rf-neg:#b32d25;
+  --rf-pos-soft:#e6f5ef;--rf-neg-soft:#fbeae8;--rf-grid:#ece8e2}
+:root[data-theme="dark"] #view-resfr{--rf-pos:#27a87e;--rf-neg:#c94540;
+  --rf-pos-soft:rgba(39,168,126,.14);--rf-neg-soft:rgba(201,69,64,.16);--rf-grid:#25282e}
+
+#view-resfr .rf-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+#view-resfr .rf-bar .rf-lbl{font-size:9.5px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);margin-right:2px}
+#view-resfr .rf-pbtn{border:1px solid var(--line);background:var(--card);color:var(--muted);
+  border-radius:11px;padding:8px 13px;font:600 12.5px/1 'Inter',sans-serif;cursor:pointer;transition:.15s}
+#view-resfr .rf-pbtn:hover{color:var(--ink);border-color:var(--accent-muted,var(--muted))}
+#view-resfr .rf-pbtn.on{background:var(--primary);border-color:var(--primary);color:#fff}
+
+#view-resfr .rf-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+#view-resfr .rf-kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:14px 15px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+#view-resfr .rf-kpi::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:var(--b,var(--primary))}
+#view-resfr .rf-kpi .t{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#view-resfr .rf-kpi .l{font-size:9.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+#view-resfr .rf-kpi .u{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);opacity:.7}
+#view-resfr .rf-kpi .v{font-family:'Space Grotesk','Inter',sans-serif;font-size:24px;font-weight:700;
+  letter-spacing:-.7px;margin-top:8px;line-height:1.05}
+#view-resfr .rf-kpi .v small{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0;margin-left:3px}
+#view-resfr .rf-kpi .s{margin-top:7px;font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
+#view-resfr .rf-chip{display:inline-flex;align-items:center;gap:3px;border-radius:7px;padding:2px 6px;
+  font:600 11px/1.35 'Inter',sans-serif;white-space:nowrap}
+#view-resfr .rf-chip.up{background:var(--rf-pos-soft);color:var(--rf-pos)}
+#view-resfr .rf-chip.down{background:var(--rf-neg-soft);color:var(--rf-neg)}
+#view-resfr .rf-chip.flat{background:var(--track-bg,rgba(0,0,0,.05));color:var(--muted)}
+
+#view-resfr .rf-card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  box-shadow:var(--shadow-sm);margin-bottom:16px;overflow:hidden}
+#view-resfr .rf-head{padding:15px 17px 12px;border-bottom:1px solid var(--line);display:flex;
+  align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+#view-resfr .rf-head > div:first-child{flex:1 1 240px;min-width:0}
+#view-resfr .rf-head .over{font-size:9.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--primary)}
+#view-resfr .rf-head h3{font-family:'Space Grotesk','Inter',sans-serif;font-size:15.5px;font-weight:600;
+  letter-spacing:-.2px;margin-top:4px}
+#view-resfr .rf-head p{font-size:12px;color:var(--muted);margin-top:4px}
+#view-resfr .rf-badge{font-size:10.5px;font-weight:600;color:var(--muted);
+  background:var(--track-bg,rgba(0,0,0,.05));border-radius:8px;padding:5px 10px;white-space:nowrap}
+#view-resfr .rf-body{padding:15px 17px}
+#view-resfr .rf-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+#view-resfr .rf-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+#view-resfr table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:680px}
+#view-resfr thead th{background:var(--thead-bg,rgba(0,0,0,.03));color:var(--muted);font-size:9.5px;
+  font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-align:left;padding:10px 11px;
+  border-bottom:1px solid var(--line);white-space:nowrap}
+#view-resfr thead th.r{text-align:right}
+#view-resfr tbody td{padding:9px 11px;border-bottom:1px solid var(--rf-grid);vertical-align:middle}
+#view-resfr tbody td.r{text-align:right;font-variant-numeric:tabular-nums}
+#view-resfr tbody tr:hover{background:var(--row-hover,rgba(0,0,0,.02))}
+#view-resfr .rf-prod{font-weight:500;line-height:1.35;min-width:220px;max-width:320px}
+#view-resfr .rf-prod small{display:block;color:var(--muted);font-size:10.5px;font-weight:400;margin-top:2px;opacity:.85}
+#view-resfr tfoot td{padding:10px 11px;border-top:2px solid var(--line);font-weight:600;
+  background:var(--thead-bg,rgba(0,0,0,.03));font-variant-numeric:tabular-nums}
+#view-resfr tfoot td.r{text-align:right}
+#view-resfr .strong{font-weight:600}
+#view-resfr .dim{color:var(--muted)}
+#view-resfr .pos{color:var(--rf-pos)}
+#view-resfr .neg{color:var(--rf-neg)}
+
+#view-resfr .rf-ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:13px}
+#view-resfr .rf-ctrl input,#view-resfr .rf-ctrl select{border:1px solid var(--line);background:var(--card);
+  color:var(--ink);border-radius:11px;padding:9px 12px;font:400 13px 'Inter',sans-serif;min-width:190px}
+
+#view-resfr .rf-chart{width:100%;display:block;overflow:visible}
+#view-resfr .rf-chart .g{stroke:var(--rf-grid);stroke-width:1}
+#view-resfr .rf-chart .ax{fill:var(--muted);font-size:10px;font-family:'Inter',sans-serif}
+#view-resfr .rf-chart .vl{fill:var(--ink);font-size:10.5px;font-weight:600;
+  font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums}
+
+#view-resfr .rf-dv{display:grid;grid-template-columns:minmax(150px,1.4fr) 1fr auto;gap:12px;
+  align-items:center;padding:9px 0;border-bottom:1px solid var(--rf-grid)}
+#view-resfr .rf-dv:last-child{border-bottom:0}
+#view-resfr .rf-dv .n{font-size:12.5px;line-height:1.35}
+#view-resfr .rf-dv .n small{display:block;color:var(--muted);font-size:10.5px;opacity:.85}
+#view-resfr .rf-track{position:relative;height:22px}
+#view-resfr .rf-track::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;
+  background:var(--muted);opacity:.45}
+#view-resfr .rf-fill{position:absolute;top:4px;height:14px;border-radius:4px}
+#view-resfr .rf-dv .v{font:600 12px/1 'Inter',sans-serif;font-variant-numeric:tabular-nums;
+  white-space:nowrap;min-width:70px;text-align:right}
+
+#view-resfr .rf-note{font-size:11.5px;color:var(--muted);padding:11px 17px;border-top:1px solid var(--line);
+  background:var(--thead-bg,rgba(0,0,0,.03))}
+#view-resfr .rf-empty{padding:24px;text-align:center;color:var(--muted);font-size:13px}
+
+@media (max-width:900px){
+  #view-resfr .rf-kpis{grid-template-columns:1fr 1fr}
+  #view-resfr .rf-2col{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  #view-resfr .rf-dv{grid-template-columns:1fr auto;gap:8px}
+  #view-resfr .rf-track{grid-column:1/-1}
+  #view-resfr .rf-ctrl input,#view-resfr .rf-ctrl select{min-width:0;width:100%}
+  #view-resfr .rf-kpi .v{font-size:20px}
+}
+</style>
 </head>
 <body>
 
@@ -1097,6 +1203,7 @@ body.strategy-meeting header,body.strategy-meeting .global-bar,body.strategy-mee
       <button class="tab" data-t="cli">Clientes</button>
       <button class="tab" data-t="comp">Comparar períodos</button>
       <button class="tab" data-t="vvv">Comparar vendedores</button>
+      <button class="tab" data-t="resfr">Resfriados</button>
     </div>
   </div>
 
@@ -1256,6 +1363,10 @@ body.strategy-meeting header,body.strategy-meeting .global-bar,body.strategy-mee
       <select id="selVvvB"></select>
     </div>
     <div id="vvvContent"></div>
+  </section>
+
+  <section id="view-resfr" style="display:none">
+    <div id="resfrContent"></div>
   </section>
 
   <div class="foot" id="foot"></div>
