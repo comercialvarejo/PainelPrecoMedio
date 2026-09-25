@@ -123,7 +123,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
   document.getElementById('view-cli').style.display = t==='cli'?'':'none';
   document.getElementById('view-comp').style.display = t==='comp'?'':'none';
   document.getElementById('view-vvv').style.display = t==='vvv'?'':'none';
-  document.getElementById('view-resfr').style.display = t==='resfr'?'':'none';
+  { const _vr=document.getElementById('view-resfr'); if(_vr) _vr.style.display = t==='resfr'?'':'none'; }
   const activeSec = document.getElementById('view-'+t);
   if(activeSec){ activeSec.classList.remove('view-anim'); void activeSec.offsetWidth; activeSec.classList.add('view-anim'); }
   if(t==='intel') renderIntel();
@@ -2158,8 +2158,65 @@ function renderResfr(){
   if(s){ s.value = rfOrd; s.addEventListener('change', e => { rfOrd = e.target.value; renderResfr(); }); }
 }
 
+/* ---------- instalação da aba (não depende de alteração no index.html) ----------
+   Cria o estilo, o botão da aba e a seção, caso ainda não existam. Assim o
+   painel funciona tanto com o index.html antigo quanto com um já atualizado. */
+function rfInstall(){
+  /* 1) estilos */
+  if(!document.getElementById('rfStyle')){
+    const st = document.createElement('style');
+    st.id = 'rfStyle';
+    st.textContent = "/* ============ ABA RESFRIADOS ============\n   Tokens pr\u00f3prios para n\u00e3o interferir no resto do painel.\n   Par divergente validado para daltonismo (deutan \u0394E 15,4 claro / 9,1 escuro);\n   o sinal e a seta acompanham todo valor, ent\u00e3o a cor nunca \u00e9 o \u00fanico indicador. */\n#view-resfr{--rf-pos:#169b74;--rf-neg:#b32d25;\n  --rf-pos-soft:#e6f5ef;--rf-neg-soft:#fbeae8;--rf-grid:#ece8e2}\n:root[data-theme=\"dark\"] #view-resfr{--rf-pos:#27a87e;--rf-neg:#c94540;\n  --rf-pos-soft:rgba(39,168,126,.14);--rf-neg-soft:rgba(201,69,64,.16);--rf-grid:#25282e}\n\n#view-resfr .rf-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}\n#view-resfr .rf-bar .rf-lbl{font-size:9.5px;font-weight:600;letter-spacing:.14em;\n  text-transform:uppercase;color:var(--muted);margin-right:2px}\n#view-resfr .rf-pbtn{border:1px solid var(--line);background:var(--card);color:var(--muted);\n  border-radius:11px;padding:8px 13px;font:600 12.5px/1 'Inter',sans-serif;cursor:pointer;transition:.15s}\n#view-resfr .rf-pbtn:hover{color:var(--ink);border-color:var(--accent-muted,var(--muted))}\n#view-resfr .rf-pbtn.on{background:var(--primary);border-color:var(--primary);color:#fff}\n\n#view-resfr .rf-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}\n#view-resfr .rf-kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;\n  padding:14px 15px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}\n#view-resfr .rf-kpi::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:var(--b,var(--primary))}\n#view-resfr .rf-kpi .t{display:flex;justify-content:space-between;align-items:center;gap:8px}\n#view-resfr .rf-kpi .l{font-size:9.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}\n#view-resfr .rf-kpi .u{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);opacity:.7}\n#view-resfr .rf-kpi .v{font-family:'Space Grotesk','Inter',sans-serif;font-size:24px;font-weight:700;\n  letter-spacing:-.7px;margin-top:8px;line-height:1.05}\n#view-resfr .rf-kpi .v small{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0;margin-left:3px}\n#view-resfr .rf-kpi .s{margin-top:7px;font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap}\n\n#view-resfr .rf-chip{display:inline-flex;align-items:center;gap:3px;border-radius:7px;padding:2px 6px;\n  font:600 11px/1.35 'Inter',sans-serif;white-space:nowrap}\n#view-resfr .rf-chip.up{background:var(--rf-pos-soft);color:var(--rf-pos)}\n#view-resfr .rf-chip.down{background:var(--rf-neg-soft);color:var(--rf-neg)}\n#view-resfr .rf-chip.flat{background:var(--track-bg,rgba(0,0,0,.05));color:var(--muted)}\n\n#view-resfr .rf-card{background:var(--card);border:1px solid var(--line);border-radius:16px;\n  box-shadow:var(--shadow-sm);margin-bottom:16px;overflow:hidden}\n#view-resfr .rf-head{padding:15px 17px 12px;border-bottom:1px solid var(--line);display:flex;\n  align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}\n#view-resfr .rf-head > div:first-child{flex:1 1 240px;min-width:0}\n#view-resfr .rf-head .over{font-size:9.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--primary)}\n#view-resfr .rf-head h3{font-family:'Space Grotesk','Inter',sans-serif;font-size:15.5px;font-weight:600;\n  letter-spacing:-.2px;margin-top:4px}\n#view-resfr .rf-head p{font-size:12px;color:var(--muted);margin-top:4px}\n#view-resfr .rf-badge{font-size:10.5px;font-weight:600;color:var(--muted);\n  background:var(--track-bg,rgba(0,0,0,.05));border-radius:8px;padding:5px 10px;white-space:nowrap}\n#view-resfr .rf-body{padding:15px 17px}\n#view-resfr .rf-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px}\n\n#view-resfr .rf-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}\n#view-resfr table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:680px}\n#view-resfr thead th{background:var(--thead-bg,rgba(0,0,0,.03));color:var(--muted);font-size:9.5px;\n  font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-align:left;padding:10px 11px;\n  border-bottom:1px solid var(--line);white-space:nowrap}\n#view-resfr thead th.r{text-align:right}\n#view-resfr tbody td{padding:9px 11px;border-bottom:1px solid var(--rf-grid);vertical-align:middle}\n#view-resfr tbody td.r{text-align:right;font-variant-numeric:tabular-nums}\n#view-resfr tbody tr:hover{background:var(--row-hover,rgba(0,0,0,.02))}\n#view-resfr .rf-prod{font-weight:500;line-height:1.35;min-width:220px;max-width:320px}\n#view-resfr .rf-prod small{display:block;color:var(--muted);font-size:10.5px;font-weight:400;margin-top:2px;opacity:.85}\n#view-resfr tfoot td{padding:10px 11px;border-top:2px solid var(--line);font-weight:600;\n  background:var(--thead-bg,rgba(0,0,0,.03));font-variant-numeric:tabular-nums}\n#view-resfr tfoot td.r{text-align:right}\n#view-resfr .strong{font-weight:600}\n#view-resfr .dim{color:var(--muted)}\n#view-resfr .pos{color:var(--rf-pos)}\n#view-resfr .neg{color:var(--rf-neg)}\n\n#view-resfr .rf-ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:13px}\n#view-resfr .rf-ctrl input,#view-resfr .rf-ctrl select{border:1px solid var(--line);background:var(--card);\n  color:var(--ink);border-radius:11px;padding:9px 12px;font:400 13px 'Inter',sans-serif;min-width:190px}\n\n#view-resfr .rf-chart{width:100%;display:block;overflow:visible}\n#view-resfr .rf-chart .g{stroke:var(--rf-grid);stroke-width:1}\n#view-resfr .rf-chart .ax{fill:var(--muted);font-size:10px;font-family:'Inter',sans-serif}\n#view-resfr .rf-chart .vl{fill:var(--ink);font-size:10.5px;font-weight:600;\n  font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums}\n\n#view-resfr .rf-dv{display:grid;grid-template-columns:minmax(150px,1.4fr) 1fr auto;gap:12px;\n  align-items:center;padding:9px 0;border-bottom:1px solid var(--rf-grid)}\n#view-resfr .rf-dv:last-child{border-bottom:0}\n#view-resfr .rf-dv .n{font-size:12.5px;line-height:1.35}\n#view-resfr .rf-dv .n small{display:block;color:var(--muted);font-size:10.5px;opacity:.85}\n#view-resfr .rf-track{position:relative;height:22px}\n#view-resfr .rf-track::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;\n  background:var(--muted);opacity:.45}\n#view-resfr .rf-fill{position:absolute;top:4px;height:14px;border-radius:4px}\n#view-resfr .rf-dv .v{font:600 12px/1 'Inter',sans-serif;font-variant-numeric:tabular-nums;\n  white-space:nowrap;min-width:70px;text-align:right}\n\n#view-resfr .rf-note{font-size:11.5px;color:var(--muted);padding:11px 17px;border-top:1px solid var(--line);\n  background:var(--thead-bg,rgba(0,0,0,.03))}\n#view-resfr .rf-empty{padding:24px;text-align:center;color:var(--muted);font-size:13px}\n\n@media (max-width:900px){\n  #view-resfr .rf-kpis{grid-template-columns:1fr 1fr}\n  #view-resfr .rf-2col{grid-template-columns:1fr}\n}\n@media (max-width:560px){\n  #view-resfr .rf-dv{grid-template-columns:1fr auto;gap:8px}\n  #view-resfr .rf-track{grid-column:1/-1}\n  #view-resfr .rf-ctrl input,#view-resfr .rf-ctrl select{min-width:0;width:100%}\n  #view-resfr .rf-kpi .v{font-size:20px}\n}";
+    document.head.appendChild(st);
+  }
+
+  /* 2) seção */
+  let sec = document.getElementById('view-resfr');
+  if(!sec){
+    sec = document.createElement('section');
+    sec.id = 'view-resfr';
+    sec.style.display = 'none';
+    sec.innerHTML = '<div id="resfrContent"></div>';
+    const ref = document.getElementById('view-vvv') || document.getElementById('view-comp');
+    if(ref && ref.parentNode) ref.parentNode.insertBefore(sec, ref.nextSibling);
+    else document.body.appendChild(sec);
+  }
+
+  /* 3) botão da aba */
+  let btn = document.querySelector('.tab[data-t="resfr"]');
+  if(!btn){
+    const tabs = document.querySelectorAll('.tab');
+    if(!tabs.length) return;                  // painel sem barra de abas: nada a fazer
+    // entra logo depois de "Comparar produto"; se não houver, vai para o fim
+    const ref = document.querySelector('.tab[data-t="prod"]') || tabs[tabs.length-1];
+    btn = document.createElement('button');
+    btn.className = 'tab';
+    btn.dataset.t = 'resfr';
+    btn.textContent = 'Resfriados';
+    ref.parentNode.insertBefore(btn, ref.nextSibling);
+  }
+
+  /* 4) comportamento do clique — o handler original já rodou antes desta linha,
+        então o botão novo precisa do seu próprio. */
+  btn.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
+    btn.classList.add('on');
+    ['view-intel','view-strategy','view-ai','view-geral','view-vend','view-prod',
+     'view-cli','view-comp','view-vvv'].forEach(id => {
+       const el = document.getElementById(id);
+       if(el) el.style.display = 'none';
+     });
+    sec.style.display = '';
+    sec.classList.remove('view-anim'); void sec.offsetWidth; sec.classList.add('view-anim');
+    renderResfr();
+  };
+}
+
 /* período salvo entre sessões */
 try{
   const rp = localStorage.getItem('painelResfrPeriodo');
   if(rp && RESFR.dados[rp]) rfAtual = rp;
 }catch(e){}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', rfInstall);
+else rfInstall();
