@@ -5,7 +5,7 @@
    >>> Ao publicar uma nova versão, altere SW_VERSION abaixo. <<<
 ------------------------------------------------------------------- */
 
-const SW_VERSION = 'v6';
+const SW_VERSION = 'v8';
 const CACHE = `painel-preco-medio-${SW_VERSION}`;
 
 /* Arquivos que compõem o aplicativo (baixados na instalação). */
@@ -33,6 +33,7 @@ self.addEventListener('install', event => {
     const cache = await caches.open(CACHE);
     // addAll falha por inteiro se um item falhar; aqui cada item é independente
     await Promise.allSettled(PRECACHE.map(url => cache.add(new Request(url, { cache: 'reload' }))));
+    await self.skipWaiting();   // assume o controle já no primeiro recarregamento
   })());
 });
 
