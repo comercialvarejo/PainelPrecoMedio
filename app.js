@@ -2,6 +2,15 @@
    Logica da aplicacao. Os dados vem de data/alldb.json (carregado pelo index.html). */
 const ALLDB = window.__PAINEL_DB__;
 let DB = ALLDB.p1;
+
+/* nome da oportunidade (mostra refaturas); se o nome não contém o cliente, o cliente vai em linha menor */
+function oppCell(o){
+  const opp=(o.opp||'').trim(), cli=(o.cli||'').trim();
+  if(!opp) return esc(cli);
+  if(cli && opp.toUpperCase().indexOf(cli.toUpperCase())===-1)
+    return esc(opp)+'<div style="font-size:10.5px;color:var(--muted);margin-top:2px">'+esc(cli)+'</div>';
+  return esc(opp);
+}
 let periodoAtual = "p1";
 /* barra de períodos gerada a partir da base (o index.html traz botões fixos antigos) */
 (function(){
@@ -263,7 +272,7 @@ function renderVendor(){
       const rows = ops.map(o=>`
         <tr>
           <td class="d-op">${o.op}</td>
-          <td class="d-cli">${esc(o.cli)}</td>
+          <td class="d-cli" title="Cliente: ${esc(o.cli)}">${oppCell(o)}</td>
           <td class="d-data num">${o.data||''}</td>
           <td class="r num">${fmtN(o.qtd)}</td>
           <td class="r num">${fmtBRL(o.pv)}</td>
@@ -302,7 +311,7 @@ function renderVendor(){
         <div class="dhead">${it.ops} oportunidade${it.ops>1?'s':''} · ${it.produto}</div>
         <div class="dscroll"><table class="dtab">
           <thead><tr>
-            <th>Nº da OP</th><th>Cliente</th><th>Data</th>
+            <th>Nº da OP</th><th>Oportunidade</th><th>Data</th>
             <th class="r">Qtd</th><th class="r">Preço venda</th><th class="r">Líq. s/ Rapel</th><th class="r">Faturamento</th>
           </tr></thead>
           <tbody>${det}</tbody>
@@ -375,7 +384,7 @@ function renderProd(){
       return ops.map(o=>`
         <tr>
           <td class="d-op">${o.op}</td>
-          <td class="d-cli">${esc(o.cli)}</td>
+          <td class="d-cli" title="Cliente: ${esc(o.cli)}">${oppCell(o)}</td>
           <td class="d-data num">${o.data||''}</td>
           <td class="r num">${fmtN(o.qtd)}</td>
           <td class="r num">${fmtBRL(o.pv)}</td>
@@ -404,7 +413,7 @@ function renderProd(){
         <div class="dhead">${itemOps.length} oportunidade${itemOps.length>1?'s':''} · ${s.vend}</div>
         <div class="dscroll"><table class="dtab">
           <thead><tr>
-            <th>Nº da OP</th><th>Cliente</th><th>Data</th>
+            <th>Nº da OP</th><th>Oportunidade</th><th>Data</th>
             <th class="r">Qtd</th><th class="r">Preço venda</th><th class="r">Líq. s/ Rapel</th><th class="r">Faturamento</th>
           </tr></thead>
           <tbody>${detRows}</tbody>
