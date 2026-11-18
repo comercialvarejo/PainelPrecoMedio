@@ -5,7 +5,7 @@
    >>> Ao publicar uma nova versão, altere SW_VERSION abaixo. <<<
 ------------------------------------------------------------------- */
 
-const SW_VERSION = 'v32';
+const SW_VERSION = 'v33';
 const CACHE = `painel-preco-medio-${SW_VERSION}`;
 
 /* Arquivos que compõem o aplicativo (baixados na instalação). */
